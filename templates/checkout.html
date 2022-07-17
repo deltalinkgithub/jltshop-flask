@@ -1,0 +1,128 @@
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script  src = "https://unpkg.com/element-ui/lib/index.js" > </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> 
+</head>
+<div id="app">
+    <div id="bar">
+        <p id="title1">結帳區</p>
+    </div>
+    <div id="table">
+        <table border width="60%">
+            <tr>
+                <td width="15%">訂單編號</td>
+                <td width="15%">訂單內容</td>
+                <td width="15%">訂單總價</td>
+                <td width="55%">動作清單</td>
+            </tr>
+            <tr v-for="(c_item,index) in items">
+                <td>${c_item.no}</td>
+                <td><p v-for="(i,index) in c_item.item">${i}</p></td>
+                <td>${c_item.total}</td>
+                <td>
+                    <el-button type="danger" class="button" @click="c_delete(c_item.no)">取消訂單</el-button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<script>
+    var app=new Vue({
+        el:'#app',
+        delimiters: ['${', '}'],
+        data:{
+            name:'',
+            items:[],
+            num:4,
+            total_price:0
+        },
+        methods:{
+            initial(data){
+                console.log(data)
+                this.items=[]
+                List=data['items'].split('-')
+                if(data['items']!=''){
+                    for(var i = 0; i < List.length; i++ ) {
+                        List2=List[i].split('@')
+                        items=[]
+                        total_price=0
+                        temp1=List2[1].split('|')
+                        for(var a = 0; a < temp1.length; a++){
+                            console.log(temp1)
+                            temp2=temp1[a].split(',')
+                            items.push(temp2[0]+'*'+temp2[2])
+                            total_price=total_price+temp2[1]*temp2[2]
+                            console.log(temp2)
+                        }
+                        this.items.push({no:List2[0],item:items,total:total_price})
+                        console.log(this.items)
+                    }
+                }
+                else{
+                    this.items=[]
+                }
+            },
+            c_delete(no){
+                axios
+                .post('/deleteCheck',{no})
+                .then((response)=>this.initial(response.data))
+                .catch((error)=>console.log(error))
+            },
+            validate(){
+                axios
+                .get('/vailidate')
+                .then((response)=>this.validate_backen(response))
+                .catch((error)=>console.log(error))
+            },
+            validate_backen(response){
+                    console.log(response.date)
+                    if(response.data == '請先登入  '){
+                        alert('請先登入123456  ')
+                        window.location.href='/'
+                    }
+            }
+
+
+        },
+        mounted(){
+            /*this.validate()*/
+            axios
+            .get('/checkView')
+            .then((response)=>this.initial(response.data))
+            .catch((error)=>console.log(error))
+        }    
+})
+</script>
+<style>
+    #bar{
+        position: absolute; 
+        top: 0;             
+        bottom: 0;           
+        left: 0;        
+        right: 0;
+        width: 100%;
+        height: 70px;
+        background: rgb(214, 210, 153);
+    }
+    #title1{
+        position: absolute; 
+        top: 10;             
+        bottom: 0;           
+        left: 950;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    #table{
+        position: absolute; 
+        top: 10%;             
+        bottom: 0;           
+        left: 32%;        
+        right: 0;
+        margin: 0px auto;
+        font-size:30px;
+    }
+</style>

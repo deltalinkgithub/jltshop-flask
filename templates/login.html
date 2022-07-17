@@ -1,0 +1,98 @@
+<head>
+    <meta charset="utf-8">
+    <title>登入</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script  src = "https://unpkg.com/element-ui/lib/index.js" > </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> 
+</head>
+<body background="https://s1.1zoom.me/big3/215/Painting_Art_Roads_Sunrises_and_sunsets_Sun_529517_1920x1080.jpg"></body>
+<div id="app">
+    <p>it's a test work for practice<br>photo source:1ZOOM.ME<br>if have any question，please send eamil to deltalink025@gmail.com</p>
+    <p id="title">登入</p>
+    <p id="loginBlock">
+        <el-card class="box-card" id="box">
+            <el-input v-model="account" placeholder="帳號" id="account"></el-input>
+            <br></br>
+            <el-input v-model="password" placeholder="密碼" id="account"></el-input>
+            <br></br>
+            <el-button type="primary" @click='login()'>登入</el-button>
+        </el-card>    
+    </p>
+    
+</div>
+<script>
+    var app=new Vue({
+        el:'#app',
+        data:{
+            account:'',
+            password:''
+        }, 
+        methods:{
+            login(){
+                axios
+                .post('/login',{
+                    account:this.account,
+                    password:this.password
+                })
+                .then((response)=>this.display(response.data))
+                .catch((error)=>console.log(error))
+            },
+            display(message){
+                if (message!='不存在' && message!='不符合'){
+                    this.m=message
+                    this.account=''
+                    this.password=''
+                    alert(message+" 歡迎登入!")
+                    window.location.href="/"
+                }
+                else{
+                    alert(message)
+                }
+            },
+            display2Val(message){
+                if (message!='請先登入  '){
+                    message=message.split(' ')
+                    alert(message[0]+" 已登入!")
+                    window.location.href="/"
+                }
+                else{
+                    console.log('未登入')
+                }
+            },
+            validate(){
+                axios
+                .get('/vailidate')
+                .then((response)=>this.display2Val(response.data))
+                .catch((error)=>console.log(error))
+            }
+        } ,
+        mounted(){
+            this.validate()
+        }      
+})
+</script>
+<style>
+    #loginBlock{
+        position:absolute;
+        top:30%;
+        left:45%;
+    }
+    #account{
+        height:55px;
+        width: 120%;
+    }
+    #title{
+        position:absolute;
+        top:20%;
+        left:55%;
+        font-size:205%;
+    }
+    #box{
+        padding-top: 50px;
+        padding-right: 80px;
+        padding-bottom: 80px;
+        padding-left: 80px;
+    }
+</style>

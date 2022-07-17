@@ -1,0 +1,141 @@
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script  src = "https://unpkg.com/element-ui/lib/index.js" > </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> 
+</head>
+<div id="app">
+    <div id="bar">
+        <p id="title1">購物車</p>
+    </div>
+    <div id="table">
+        <table border width="60%">
+            <tr>
+                <td width="15%">商品名稱</td>
+                <td width="15%">商品數量</td>
+                <td width="15%">商品總價</td>
+                <td width="55%">動作清單</td>
+            </tr>
+            <tr v-for="(item,index) in items">
+                <td>${item.name}</td>
+                <td>${item.volumn}</td>
+                <td>${item.total}</td>
+                <td>
+                    <el-button type="danger" class="button" @click="addCart(item.name,item.price,'1')">+1</el-button>
+                    <el-button type="danger" class="button" @click="addCart(item.name,item.price,'10')">+10</el-button>
+                    <el-button type="primary" class="button" @click="addCart(item.name,item.price,'-1')">-1</el-button>
+                    <el-button type="primary" class="button" @click="addCart(item.name,item.price,'-10')">-10</el-button>
+                </td>
+            </tr>
+            <span>總價:${total_price}</span>
+        </table>
+        <el-button type="primary" class="button" @click="addCheck()" id="checkout" >結帳</el-button>
+        
+    </div>
+</div>
+<script>
+    var app=new Vue({
+        el:'#app',
+        delimiters: ['${', '}'],
+        data:{
+            name:'',
+            items:'',
+            num:4,
+            total_price:0
+        },
+        methods:{
+            initial(data){
+                this.total_price=0
+                console.log(data)
+                List=data['items'].split('|')
+                if(data['items']!=''){
+                    this.items=[]
+                    for(var i = 0; i < List.length; i++ ) {
+                        temp1=List[i].split(',')
+                        console.log(temp1)
+                        this.items.push({name:temp1[0],volumn:temp1[2],total:temp1[1]*temp1[2],price:temp1[1]})
+                        this.total_price=this.total_price+temp1[1]*temp1[2]
+                    }
+                    console.log(this.items)
+                }
+                else{
+                    this.items=[]
+                }
+            },
+            addCart(name,price,times){
+                axios
+                .post('/addCart',{name,price,times})
+                .then((response)=>this.initial(response.data))
+                .catch((error)=>console.log(error))
+            },
+            addCheck(){
+                if(this.items != ''){
+                    axios
+                    .get('/addCheck')
+                    .then((response)=>console.log('check_success'))
+                    .catch((error)=>console.log(error))
+                    this.items=[]
+                    this.total_price=0
+                    alert('已成功結帳')
+                }
+                else{
+                    alert('購物車為空')
+                }
+            },
+            validate(){
+                axios
+                .get('/vailidate')
+                .then((response)=>this.validate_backen(response))
+                .catch((error)=>console.log(error))
+            },
+            validate_backen(response){
+                    console.log(response.date)
+                    if(response.data == '請先登入  '){
+                        alert('請先登入  ')
+                        window.location.href='/'
+                    }
+            }
+
+
+        },
+        mounted(){
+            this.validate()
+            axios
+            .get('/cartView')
+            .then((response)=>this.initial(response.data))
+            .catch((error)=>console.log(error))
+        }    
+})
+</script>
+<style>
+    #bar{
+        position: absolute; 
+        top: 0;             
+        bottom: 0;           
+        left: 0;        
+        right: 0;
+        width: 100%;
+        height: 70px;
+        background: rgb(214, 210, 153);
+    }
+    #title1{
+        position: absolute; 
+        top: 10;             
+        bottom: 0;           
+        left: 950;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    #table{
+        position: absolute; 
+        top: 10%;             
+        bottom: 0;           
+        left: 32%;        
+        right: 0;
+        margin: 0px auto;
+        font-size:30px;
+    }
+</style>

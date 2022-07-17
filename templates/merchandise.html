@@ -1,0 +1,109 @@
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script  src = "https://unpkg.com/element-ui/lib/index.js" > </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> 
+</head>
+<div id="app">
+    <title>${ name }</title>
+    <div id="bar">
+        <p id="title1">${ name }</p>
+    </div>
+    <div id="card">
+        <table>
+            <tr v-for="(item,index) in items">
+                    <td v-for="i in item">
+                        <el-card>
+                            <img :src=i.mPhoto class="image">
+                            <div style="padding: 14px;">
+                              <span>${i.mName}</span>
+                              <div class="bottom clearfix">
+                                <span>價格:${i.mPrice}</span>
+                                <br>
+                                <el-button type="text" class="button" @click="addCart(i.mName,i.mPrice,'1')">加入購物車</el-button>
+                              </div>
+                            </div>
+                        </el-card>
+                    </td>
+            </tr>
+        </table>    
+    </div>
+</div>
+<script>
+    var app=new Vue({
+        el:'#app',
+        delimiters: ['${', '}'],
+        data:{
+            name:'',
+            items:'',
+            num:4,
+        },
+        methods:{
+            initial(data){
+                console.log(data)
+                this.name=data['page']
+                List=data['items'].split('|')
+                this.items=[]
+                for(var i = 0; i < List.length; i++ ) {
+                    temp1=List[i].split('-')
+                    List2=[]
+                    for (var a=0;a<temp1.length;a++){
+                        temp2=temp1[a].split('=')
+                        List2.push({mName:temp2[0],mPrice:temp2[1],mPhoto:temp2[2]})
+                        console.log(List2)
+                    }
+                    this.items.push(List2)
+                }
+                console.log(this.items)
+            },
+            addCart(name,price,times){
+                axios
+                .post('/addCart',{name,price,times})
+                .then((response)=>cosole.log(respose))
+                .catch((error)=>console.log(error))
+            }
+
+        },
+        mounted(){
+            axios
+            .get('/pageInitial')
+            .then((response)=>this.initial(response.data))
+            .catch((error)=>console.log(error))
+        }    
+})
+</script>
+<style>
+    #bar{
+        position: absolute; 
+        top: 0;             
+        bottom: 0;           
+        left: 0;        
+        right: 0;
+        width: 100%;
+        height: 70px;
+        background: rgb(214, 210, 153);
+    }
+    #title1{
+        position: absolute; 
+        top: 10;             
+        bottom: 0;           
+        left: 950;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    .el-card{
+        background-color:#e6dbdb
+    }
+    #card{
+        position: absolute; 
+        top: 10%;             
+        bottom: 0;           
+        left:20%;        
+        margin: auto;
+        font-size:30px;
+        display:inline;
+    }
+</style>

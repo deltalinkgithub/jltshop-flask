@@ -1,0 +1,245 @@
+<head>
+    <meta charset="utf-8">
+    <title>商店頁面</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script  src = "https://unpkg.com/element-ui/lib/index.js" > </script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/vuex@3.1.0"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"> 
+</head>
+<body>
+    
+    <div id="app-11">
+        <div id="bar">
+            <p>it's a test work for practice<br>photo source:iconfinder.com<br>if have any question，please send email to deltalink025@gmail.com</p>
+            <p id="title1">JIN雜貨店</p>
+            <p id="icon1">
+                <a href="/loginPage"><img src="https://cdn4.iconfinder.com/data/icons/basic-user-interface-elements/700/user-account-profile-human-avatar-face-head--256.png" width="50" height="50"></a>
+                <a href="/cart"><img src="https://cdn4.iconfinder.com/data/icons/basic-ui-2-line/32/shopping-cart-shop-drop-trolly-256.png" width="50" height="50"></a>
+                <a href="/checkout"><img src="https://cdn4.iconfinder.com/data/icons/basic-user-interface-elements/700/paste-clipboard-copy-256.png" width="50" height="50"></a>
+                
+            </p>
+            <p id="icon2" v-if="status==1">
+                <el-button type="primary" @click='logout()'>登出</el-button>  
+            </p>
+            
+        </div>
+        <body background="https://img.freepik.com/free-vector/ecommerce-checkout-laptop-concept-illustration_114360-8203.jpg?t=st=1653747485~exp=1653748085~hmac=9222fb06f79d34d9375102c9e8093428f2a1c921740de8ef3a896052121ee44d&w=1380"></body>
+        <p id='t3'>商品列表</p>
+        <el-menu id="m1" default-active="2" class="el-menu-vertical-demo"   background-color='#99cdd6' :collapse-transition=false>
+            <el-submenu index="1">
+                <template slot="title">
+                    <span id="s1">食品</span>
+                </template>
+                <el-menu-item-group>
+                    <template slot="title">食品種類</template>
+                    <el-menu-item index="1-1" @click="vailidateFood('dessert')">零食</el-menu-item>
+                    <el-menu-item index="1-2" @click="vailidateFood('fruit')">水果</el-menu-item>
+                </el-menu-item-group>
+            </el-submenu>
+            <el-submenu index="2">
+                <template slot="title" @click='log()'>
+                    <span id="s1" @click='log()'>飲料</span>
+                </template>
+                <el-menu-item-group>
+                    <template slot="title">飲料種類</template>
+                    <el-menu-item index="2-1" @click="vailidateFood('softDrink')">汽水</el-menu-item>
+                    <el-menu-item index="2-2" @click="vailidateFood('juice')">果汁</el-menu-item>
+                  </el-menu-item-group>
+            </el-submenu>
+        </el-menu>
+    </div>
+</body>
+<script>
+    var app11=new Vue({
+        el:'#app-11',
+        data:{
+            account:'',
+            password:'',
+            status:1,
+            m:''
+        },
+        methods:{
+            logout(){
+                axios
+                .get('/logout')
+                .then((response)=>this.logoutProcess())
+                .catch((error)=>console.log(error))
+            },
+            validate(){
+                axios
+                .get('/validate')
+                .then((response)=>this.checkLogin(response.data))
+                .catch((error)=>console.log(error))
+            },
+            checkLogin(message){
+                check=message.split(' ')[1]
+                user=message.split(' ')[0]
+                if(check=='login'){
+                    console.log(message)
+                }
+                else{
+                    location.href='/loginPage'
+                }
+            },
+            logoutProcess(){
+                this.status=0
+                this.account=''
+                this.password=''
+                alert('已成功登出')
+            },
+            vailidateFood(foodName){
+                console.log(foodName)
+                axios
+                .post('/pageClick',{foodName})
+                .then((response)=>this.showFood(response.data))
+                .catch((error)=>console.log(error))
+            },
+            showMain(message){
+                check=message.split(' ')[1]
+                user=message.split(' ')[0]
+                if(check=='login'){
+                    this.status=1
+                    this.display(user)
+                }
+                else{
+                    console.log(status)
+                    this.status=0
+                }
+            },
+            showFood(message){
+                if(message!='請先登入  '){
+                    location.href='/merchandise'
+                }
+                else{
+                    console.log(status)
+                    alert('請先登入')
+                }
+            },
+            display(message){
+                if (message!='不存在' && message!='不符合'){
+                    this.m=message
+                    this.status=1
+                    this.account=''
+                    this.password=''
+                }
+                else{
+                    alert(message)
+                }
+            },
+            check(){
+                axios
+                .get('/vailidate')
+                .then((response)=>this.showMain(response.data))
+                .catch((error)=>console.log(error))
+            },
+        },
+        mounted(){
+            this.check()
+        }    
+})
+</script>
+<style>
+    #title1{
+        position: absolute; 
+        top: 10;             
+        bottom: 0;           
+        left: 950;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    #icon1{
+        position: absolute; 
+        top: 10;             
+        bottom: 0;           
+        left: 1500;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    #icon2{
+        position: absolute; 
+        top: 13;             
+        bottom: 0;           
+        left: 1750;        
+        right: 0;
+        margin: auto;
+        font-size:30px;
+    }
+    #bar{
+        width: 1920px;
+        height: 70px;
+        background: rgb(214, 210, 153);
+    }
+    #carousel{
+        position: absolute; 
+        top: 10%;             
+        bottom: 0;           
+        left: 15%;        
+        right: 0;
+        margin: auto;
+        width:50%;
+        font-size:30px;
+    }
+    body{
+        position: absolute;
+        top: 0;
+        left: 0; 
+        right: 0;
+        bottom: 0;
+        margin:auto;
+    }
+    #app-11 {
+        width: 200px;
+        height: 1080px;
+        background: rgb(153, 205, 214);
+        /*position: absolute;
+        top: 0;
+        left: 0; 
+        right: 0;
+        bottom: 0;
+        margin:auto;*/
+        }
+    #l1{
+        position:absolute;
+        top:11px;
+        left:950px;
+        font-size:20px;
+        margin:auto;
+    }
+    #t1{
+        position:absolute;
+        top:5px;
+        left:60px;
+    }
+    #t3{
+        position:absolute;
+        top:90px;
+        left:40px;
+        font-size:30px;
+        margin:auto;
+    }
+    #m1{
+        position:absolute;
+        top:150px;
+        left:0px;
+        font-size:60px;
+        margin:auto;
+    }
+    .el-menu {
+        border-right:rgb(153, 205, 214);
+    }
+    .el-submenu__title{
+        font-size:20px;
+    }
+    .el-menu-item-group__title {
+        font-size:20px;
+    }
+    .el-menu-item{
+        font-size:20px;
+    }
+    .el-input__inner {
+        height:30px;
+        width:50%
+    }
